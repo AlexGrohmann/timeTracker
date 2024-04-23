@@ -25,6 +25,21 @@ def time_difference(start_timestamp):
     return f"{hours}h {minutes}min"
 
 
+def time_difference(start_time, end_time):
+
+    # Convert start and end times to datetime objects
+    start = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S.%f")
+    end = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S.%f")
+
+    # Calculate the difference
+    time_delta = end - start
+
+    # Format the time difference
+    hours = time_delta.seconds // 3600
+    minutes = (time_delta.seconds % 3600) // 60
+    return f"{hours}h {minutes}min"
+
+
 def track(type):
     last_timestamp = ""
     with open(path, "r") as f:
@@ -54,6 +69,30 @@ def track(type):
             print("added: " + type + " " + meeting_topic + " " + str(datetime.now()))
 
 
+def output():
+    with open(path, "r") as file:
+        lines = file.readlines()
+
+    # Iterate through lines, starting from the second line
+    for i in range(1, len(lines)):
+        start_time = lines[i - 1][lines[i - 1].find(divider) + len(divider) :]
+
+        # Extract timestamp from previous line
+        end_time = lines[i][
+            lines[i].find(divider) + len(divider) :
+        ]  # Extract timestamp from current line
+
+        time_diff = time_difference(start_time.strip(), end_time.strip())
+        print(
+            str(i)
+            + ". "
+            + lines[i][: lines[i].find(divider)]
+            + " "
+            + str(time_diff)
+            + "\n"
+        )
+
+
 f = open(path, "r")
 content = f.read()
 if content == "":
@@ -73,6 +112,5 @@ else:
     elif user_input == "?":
         output()
     elif user_input == "X":
-        endDay()
-f = open(path, "r")
-print(f.read())
+        #  endDay() TODO: think about usecase
+        print("coming soon ...")
