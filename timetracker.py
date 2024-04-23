@@ -43,6 +43,15 @@ def track(type):
             print("added: " + type + " " + ticket_number + " " + str(datetime.now()))
     if type == "meeting":
         meeting_topic = input("Topic: \n")
+        time_spend_input = input(
+            "How much time to log? Press Enter for: " + time_difference(last_timestamp)
+        )
+        if time_spend_input == "":
+            f = open(path, "a")
+            f.write(
+                "\n" + type + " " + meeting_topic + " " + divider + str(datetime.now())
+            )
+            print("added: " + type + " " + meeting_topic + " " + str(datetime.now()))
 
 
 f = open(path, "r")
