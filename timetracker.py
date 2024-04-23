@@ -1,116 +1,83 @@
-from datetime import date
-from datetime import datetime
+from datetime import datetime, timedelta
+import os
 
-today = date.today().strftime("%d_%m_%Y")
-path = "./timetrackerdata/" + today + ".txt"
-divider = "--> "
-
-f = open(path, "a")
-
-
-def time_difference(start_timestamp):
-    # Convert the start timestamp to a datetime object
-    start_time = datetime.strptime(start_timestamp, "%Y-%m-%d %H:%M:%S.%f")
-
-    # Get the current timestamp
-    current_time = datetime.now()
-
-    # Calculate the difference
-    time_difference = current_time - start_time
-
-    # Calculate hours and minutes
-    hours = time_difference.seconds // 3600
-    minutes = (time_difference.seconds % 3600) // 60
-
-    return f"{hours}h {minutes}min"
+TODAY = datetime.today().strftime("%d_%m_%Y")
+PATH = f"./timetrackerdata/{TODAY}.txt"
+DIVIDER = "--> "
 
 
 def time_difference(start_time, end_time):
-
-    # Convert start and end times to datetime objects
     start = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S.%f")
     end = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S.%f")
-
-    # Calculate the difference
     time_delta = end - start
-
-    # Format the time difference
-    hours = time_delta.seconds // 3600
-    minutes = (time_delta.seconds % 3600) // 60
+    hours, minutes = divmod(time_delta.seconds // 60, 60)
     return f"{hours}h {minutes}min"
 
 
-def track(type):
-    last_timestamp = ""
-    with open(path, "r") as f:
-        last_line = f.readlines()[-1]
-        last_timestamp = last_line[last_line.find(divider) + len(divider) :]
+def track(type, last_timestamp):
     if type == "ticket":
         ticket_number = input("Ticket: \n")
         time_spend_input = input(
-            "How much time to log? Press Enter for: " + time_difference(last_timestamp)
+            "How much time to log? Press Enter for: "
+            + time_difference(last_timestamp, str(datetime.now()))
         )
-        if time_spend_input == "":
-            f = open(path, "a")
-            f.write(
-                "\n" + type + " " + ticket_number + " " + divider + str(datetime.now())
-            )
-            print("added: " + type + " " + ticket_number + " " + str(datetime.now()))
-    if type == "meeting":
+        if not time_spend_input:
+            with open(PATH, "a") as f:
+                f.write(f"\n{type} {ticket_number} {DIVIDER} {datetime.now()}")
+            print(f"added: {type} {ticket_number} {datetime.now()}")
+    elif type == "meeting":
         meeting_topic = input("Topic: \n")
         time_spend_input = input(
-            "How much time to log? Press Enter for: " + time_difference(last_timestamp)
+            "How much time to log? Press Enter for: "
+            + time_difference(last_timestamp, str(datetime.now()))
         )
-        if time_spend_input == "":
-            f = open(path, "a")
-            f.write(
-                "\n" + type + " " + meeting_topic + " " + divider + str(datetime.now())
-            )
-            print("added: " + type + " " + meeting_topic + " " + str(datetime.now()))
+        if not time_spend_input:
+            with open(PATH, "a") as f:
+                f.write(f"\n{type} {meeting_topic} {DIVIDER} {datetime.now()}")
+            print(f"added: {type} {meeting_topic} {datetime.now()}")
 
 
 def output():
-    with open(path, "r") as file:
+    with open(PATH, "r") as file:
         lines = file.readlines()
 
-    # Iterate through lines, starting from the second line
     for i in range(1, len(lines)):
-        start_time = lines[i - 1][lines[i - 1].find(divider) + len(divider) :]
-
-        # Extract timestamp from previous line
-        end_time = lines[i][
-            lines[i].find(divider) + len(divider) :
-        ]  # Extract timestamp from current line
-
-        time_diff = time_difference(start_time.strip(), end_time.strip())
-        print(
-            str(i)
-            + ". "
-            + lines[i][: lines[i].find(divider)]
-            + " "
-            + str(time_diff)
-            + "\n"
-        )
+        start_time = lines[i - 1].split(DIVIDER)[1].strip()
+        end_time = lines[i].split(DIVIDER)[1].strip()
+        time_diff = time_difference(start_time, end_time)
+        print(f"{i}. {lines[i].split(DIVIDER)[0]} {time_diff}\n")
 
 
-f = open(path, "r")
-content = f.read()
-if content == "":
+def start_tracking():
     user_input = input("start tracking now? " + str(datetime.now()) + "\n")
-    if user_input == "Y":
-        f = open(path, "a")
-        f.write("start " + divider + str(datetime.now()))
-else:
-    print("What do you want to track? \n")
-    user_input = input(
-        "\t[T]: Ticket\n\t[M]: Meeting\n\t[?]: Get tracked times\n\t[X]: End day\n"
-    )
-    if user_input == "T":
-        track("ticket")
-    elif user_input == "M":
-        track("meeting")
-    elif user_input == "?":
-        output()
-    elif user_input == "X":
-        #  endDay() TODO: think about usecase
-        print("coming soon ...")
+    if user_input == "":
+        with open(PATH, "a") as f:
+            f.write(f"start {DIVIDER} {datetime.now()}")
+
+
+def main():
+    if not os.path.exists(PATH):
+        start_tracking()
+    else:
+        print("What do you want to track? \n")
+        user_input = input(
+            "\t[T]: Ticket\n\t[M]: Meeting\n\t[?]: Get tracked times\n\t[X]: End day\n"
+        ).upper()
+        if user_input == "T":
+            with open(PATH, "r") as f:
+                last_line = f.readlines()[-1]
+                last_timestamp = last_line.split(DIVIDER)[1].strip()
+            track("ticket", last_timestamp)
+        elif user_input == "M":
+            with open(PATH, "r") as f:
+                last_line = f.readlines()[-1]
+                last_timestamp = last_line.split(DIVIDER)[1].strip()
+            track("meeting", last_timestamp)
+        elif user_input == "?":
+            output()
+        elif user_input == "X":
+            print("Exiting...")
+
+
+if __name__ == "__main__":
+    main()
