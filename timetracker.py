@@ -15,6 +15,14 @@ def time_difference(start_time, end_time):
 
 
 def track(type, last_timestamp):
+    with open(PATH, "r") as f:
+        file_content = f.read()
+
+    if file_content and file_content[-1] == "\n":
+        prefix = ""
+    else:
+        prefix = "\n"
+
     if type == "ticket":
         ticket_number = input("Ticket: \n")
         time_spend_input = input(
@@ -23,7 +31,7 @@ def track(type, last_timestamp):
         )
         if not time_spend_input:
             with open(PATH, "a") as f:
-                f.write(f"\n{type} {ticket_number} {DIVIDER} {datetime.now()}")
+                f.write(f"{prefix}{type} {ticket_number} {DIVIDER} {datetime.now()}")
             print(f"added: {type} {ticket_number} {datetime.now()}")
     elif type == "meeting":
         meeting_topic = input("Topic: \n")
@@ -33,7 +41,7 @@ def track(type, last_timestamp):
         )
         if not time_spend_input:
             with open(PATH, "a") as f:
-                f.write(f"\n{type} {meeting_topic} {DIVIDER} {datetime.now()}")
+                f.write(f"{prefix}{type} {meeting_topic} {DIVIDER} {datetime.now()}")
             print(f"added: {type} {meeting_topic} {datetime.now()}")
 
 
@@ -55,13 +63,26 @@ def start_tracking():
             f.write(f"start {DIVIDER} {datetime.now()}")
 
 
+def delete_last_line():
+    if os.path.exists(PATH) and os.path.getsize(PATH) > 0:
+        with open(PATH, "r+") as file:
+            lines = file.readlines()
+            if len(lines) > 0:
+                file.seek(0)
+                file.truncate()
+                file.writelines(lines[:-1])
+        print("Last entry deleted.")
+    else:
+        print("File is empty or does not exist.")
+
+
 def main():
     if not os.path.exists(PATH):
         start_tracking()
     else:
         print("What do you want to track? \n")
         user_input = input(
-            "\t[T]: Ticket\n\t[M]: Meeting\n\t[?]: Get tracked times\n\t[X]: End day\n"
+            "\t[T]: Ticket\n\t[M]: Meeting\n\t[?]: Get tracked times\n\t[X]: Delete last entry\n"
         ).upper()
         if user_input == "T":
             with open(PATH, "r") as f:
@@ -76,7 +97,8 @@ def main():
         elif user_input == "?":
             output()
         elif user_input == "X":
-            print("Exiting...")
+            delete_last_line()
+            print("Last entry deleted.")
 
 
 if __name__ == "__main__":
