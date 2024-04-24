@@ -40,10 +40,6 @@ def track(type, last_timestamp_str):
                 f.write(f"{prefix} {type} {ticket_number} {DIVIDER} {new_timestamp}\n")
             print(f"added: {type} {ticket_number} {new_timestamp}")
         else:
-            time_difference_past = (
-                timedelta()
-            )  # If input is empty, no additional time spent
-
             current_time = datetime.now()
 
             with open(PATH, "a") as f:
@@ -66,10 +62,6 @@ def track(type, last_timestamp_str):
                 f.write(f"{prefix}{type} {meeting_topic} {DIVIDER} {new_timestamp}\n")
             print(f"added: {type} {meeting_topic} {new_timestamp}")
         else:
-            time_difference_past = (
-                timedelta()
-            )  # If input is empty, no additional time spent
-
             current_time = datetime.now()
 
             with open(PATH, "a") as f:
