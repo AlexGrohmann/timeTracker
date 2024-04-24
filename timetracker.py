@@ -14,7 +14,8 @@ def time_difference(start_time, end_time):
     return f"{hours}h {minutes}min"
 
 
-def track(type, last_timestamp):
+def track(type, last_timestamp_str):
+    last_timestamp = datetime.strptime(last_timestamp_str, "%Y-%m-%d %H:%M:%S.%f")
     with open(PATH, "r") as f:
         file_content = f.read()
 
@@ -27,22 +28,53 @@ def track(type, last_timestamp):
         ticket_number = input("Ticket: \n")
         time_spend_input = input(
             "How much time to log? Press Enter for: "
-            + time_difference(last_timestamp, str(datetime.now()))
+            + time_difference(str(last_timestamp), str(datetime.now()))
         )
-        if not time_spend_input:
+
+        if time_spend_input.strip():  # Check if time_spend_input is not empty
+            time_spend_minutes = int(time_spend_input)
+            time_difference_past = timedelta(minutes=time_spend_minutes)
+            new_timestamp = last_timestamp + time_difference_past
+
             with open(PATH, "a") as f:
-                f.write(f"{prefix}{type} {ticket_number} {DIVIDER} {datetime.now()}")
-            print(f"added: {type} {ticket_number} {datetime.now()}")
+                f.write(f"{prefix} {type} {ticket_number} {DIVIDER} {new_timestamp}\n")
+            print(f"added: {type} {ticket_number} {new_timestamp}")
+        else:
+            time_difference_past = (
+                timedelta()
+            )  # If input is empty, no additional time spent
+
+            current_time = datetime.now()
+
+            with open(PATH, "a") as f:
+                f.write(f"{prefix} {type} {ticket_number} {DIVIDER} {current_time}\n")
+            print(f"added: {type} {ticket_number} {current_time}")
+
     elif type == "meeting":
         meeting_topic = input("Topic: \n")
         time_spend_input = input(
             "How much time to log? Press Enter for: "
-            + time_difference(last_timestamp, str(datetime.now()))
+            + time_difference(str(last_timestamp), str(datetime.now()))
         )
-        if not time_spend_input:
+
+        if time_spend_input.strip():  # Check if time_spend_input is not empty
+            time_spend_minutes = int(time_spend_input)
+            time_difference_past = timedelta(minutes=time_spend_minutes)
+            new_timestamp = last_timestamp + time_difference_past
+
             with open(PATH, "a") as f:
-                f.write(f"{prefix}{type} {meeting_topic} {DIVIDER} {datetime.now()}")
-            print(f"added: {type} {meeting_topic} {datetime.now()}")
+                f.write(f"{prefix}{type} {meeting_topic} {DIVIDER} {new_timestamp}\n")
+            print(f"added: {type} {meeting_topic} {new_timestamp}")
+        else:
+            time_difference_past = (
+                timedelta()
+            )  # If input is empty, no additional time spent
+
+            current_time = datetime.now()
+
+            with open(PATH, "a") as f:
+                f.write(f"{prefix}{type} {meeting_topic} {DIVIDER} {current_time}\n")
+            print(f"added: {type} {meeting_topic} {current_time}")
 
 
 def output():
