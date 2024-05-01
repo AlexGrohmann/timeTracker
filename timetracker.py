@@ -35,6 +35,10 @@ def print_message(status):
     print(f"{Colors.MAGENTA}{status}{Colors.RESET}")
 
 
+def print_user_input_message(message):
+    return input(f"{Colors.CYAN}{message}{Colors.RESET}")
+
+
 def time_difference(start_time, end_time):
     start = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S.%f")
     end = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S.%f")
@@ -66,8 +70,8 @@ def determine_prefix(file_content):
 
 def process_ticket(last_timestamp, prefix):
     try:
-        ticket_number = input("Ticket: \n")
-        time_spend_input = input(
+        ticket_number = print_user_input_message("Ticket: \n")
+        time_spend_input = print_user_input_message(
             "How much time to log? Press Enter for: "
             + time_difference(str(last_timestamp), str(datetime.now()))
         )
@@ -88,8 +92,8 @@ def process_ticket(last_timestamp, prefix):
 
 def process_meeting(last_timestamp, prefix):
     try:
-        meeting_topic = input("Topic: \n")
-        time_spend_input = input(
+        meeting_topic = print_user_input_message("Topic: \n")
+        time_spend_input = print_user_input_message(
             "How much time to log? Press Enter for: "
             + time_difference(str(last_timestamp), str(datetime.now()))
         )
@@ -147,7 +151,9 @@ def output():
 
 
 def start_tracking():
-    user_input = input("start tracking now? " + str(datetime.now()) + "\n")
+    user_input = print_user_input_message(
+        "start tracking now? " + str(datetime.now()) + "\n"
+    )
     if user_input == "":
         try:
             with open(PATH, "a") as f:
@@ -178,7 +184,7 @@ def main():
         start_tracking()
     else:
         print("What do you want to track? \n")
-        user_input = input(
+        user_input = print_user_input_message(
             "\t[T]: Ticket\n\t[M]: Meeting\n\t[?]: Get tracked times\n\t[X]: Delete last entry\n"
         ).upper()
         if user_input == "T":
