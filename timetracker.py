@@ -111,7 +111,7 @@ def start_tracking():
         try:
             with open(PATH, "a") as f:
                 f.write(f"start {DIVIDER} {datetime.now()}")
-            print_sucess("timetracking started")
+            print_sucess(f"timetracking started at: {str(datetime.now())}")
         except Exception as e:
             print_error(f"An error occurred while writing to the file: {e}")
 
