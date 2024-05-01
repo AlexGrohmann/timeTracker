@@ -23,7 +23,7 @@ def print_error(error):
     print(f"{Colors.RED}{error}{Colors.RESET}")
 
 
-def print_sucess(status):
+def print_success(status):
     print(f"{Colors.GREEN}{status}{Colors.RESET}")
 
 
@@ -39,85 +39,85 @@ def time_difference(start_time, end_time):
     return f"{hours}h {minutes}min"
 
 
-from datetime import datetime, timedelta
+def parse_timestamp(last_timestamp_str):
+    try:
+        return datetime.strptime(last_timestamp_str, "%Y-%m-%d %H:%M:%S.%f")
+    except ValueError as e:
+        print_error(f"Error parsing last_timestamp: {e}")
+        return None
+
+
+def read_file_content(file_path):
+    try:
+        with open(file_path, "r") as f:
+            return f.read()
+    except IOError as e:
+        print_error(f"Error reading file: {e}")
+        return None
+
+
+def determine_prefix(file_content):
+    return "" if file_content and file_content[-1] == "\n" else "\n"
+
+
+def process_ticket(last_timestamp, prefix):
+    try:
+        ticket_number = input("Ticket: \n")
+        time_spend_input = input(
+            "How much time to log? Press Enter for: "
+            + time_difference(str(last_timestamp), str(datetime.now()))
+        )
+
+        if time_spend_input.strip():
+            time_spend_minutes = int(time_spend_input)
+            time_difference_past = timedelta(minutes=time_spend_minutes)
+            new_timestamp = last_timestamp + time_difference_past
+        else:
+            new_timestamp = datetime.now()
+
+        with open(PATH, "a") as f:
+            f.write(f"{prefix} ticket {ticket_number} {DIVIDER} {new_timestamp}\n")
+        print_success(f"Added: ticket {ticket_number} {new_timestamp}")
+    except Exception as e:
+        print_error(f"An error occurred while processing ticket: {e}")
+
+
+def process_meeting(last_timestamp, prefix):
+    try:
+        meeting_topic = input("Topic: \n")
+        time_spend_input = input(
+            "How much time to log? Press Enter for: "
+            + time_difference(str(last_timestamp), str(datetime.now()))
+        )
+
+        if time_spend_input.strip():
+            time_spend_minutes = int(time_spend_input)
+            time_difference_past = timedelta(minutes=time_spend_minutes)
+            new_timestamp = last_timestamp + time_difference_past
+        else:
+            new_timestamp = datetime.now()
+
+        with open(PATH, "a") as f:
+            f.write(f"{prefix} meeting {meeting_topic} {DIVIDER} {new_timestamp}\n")
+        print_success(f"Added: meeting {meeting_topic} {new_timestamp}")
+    except Exception as e:
+        print_error(f"An error occurred while processing meeting: {e}")
 
 
 def track(type, last_timestamp_str):
-    try:
-        last_timestamp = datetime.strptime(last_timestamp_str, "%Y-%m-%d %H:%M:%S.%f")
-    except ValueError as e:
-        print_error(f"Error parsing last_timestamp: {e}")
+    last_timestamp = parse_timestamp(last_timestamp_str)
+    if last_timestamp is None:
         return
 
-    try:
-        with open(PATH, "r") as f:
-            file_content = f.read()
-    except IOError as e:
-        print_error(f"Error reading file: {e}")
-        return
-
-    if file_content and file_content[-1] == "\n":
-        prefix = ""
-    else:
-        prefix = "\n"
+    file_content = read_file_content(PATH)
+    prefix = determine_prefix(file_content)
 
     if type == "ticket":
-        try:
-            ticket_number = input("Ticket: \n")
-            time_spend_input = input(
-                "How much time to log? Press Enter for: "
-                + time_difference(str(last_timestamp), str(datetime.now()))
-            )
-
-            if time_spend_input.strip():  # Check if time_spend_input is not empty
-                time_spend_minutes = int(time_spend_input)
-                time_difference_past = timedelta(minutes=time_spend_minutes)
-                new_timestamp = last_timestamp + time_difference_past
-
-                with open(PATH, "a") as f:
-                    f.write(
-                        f"{prefix} {type} {ticket_number} {DIVIDER} {new_timestamp}\n"
-                    )
-                print_sucess(f"added: {type} {ticket_number} {new_timestamp}")
-            else:
-                current_time = datetime.now()
-
-                with open(PATH, "a") as f:
-                    f.write(
-                        f"{prefix} {type} {ticket_number} {DIVIDER} {current_time}\n"
-                    )
-                print_sucess(f"added: {type} {ticket_number} {current_time}")
-        except Exception as e:
-            print_error(f"An error occurred while processing ticket: {e}")
-
+        process_ticket(last_timestamp, prefix)
     elif type == "meeting":
-        try:
-            meeting_topic = input("Topic: \n")
-            time_spend_input = input(
-                "How much time to log? Press Enter for: "
-                + time_difference(str(last_timestamp), str(datetime.now()))
-            )
-
-            if time_spend_input.strip():  # Check if time_spend_input is not empty
-                time_spend_minutes = int(time_spend_input)
-                time_difference_past = timedelta(minutes=time_spend_minutes)
-                new_timestamp = last_timestamp + time_difference_past
-
-                with open(PATH, "a") as f:
-                    f.write(
-                        f"{prefix}{type} {meeting_topic} {DIVIDER} {new_timestamp}\n"
-                    )
-                print_sucess(f"added: {type} {meeting_topic} {new_timestamp}")
-            else:
-                current_time = datetime.now()
-
-                with open(PATH, "a") as f:
-                    f.write(
-                        f"{prefix}{type} {meeting_topic} {DIVIDER} {current_time}\n"
-                    )
-                print_sucess(f"added: {type} {meeting_topic} {current_time}")
-        except Exception as e:
-            print_error(f"An error occurred while processing meeting: {e}")
+        process_meeting(last_timestamp, prefix)
+    else:
+        print_error("Invalid type provided.")
 
 
 def output():
@@ -137,7 +137,7 @@ def start_tracking():
         try:
             with open(PATH, "a") as f:
                 f.write(f"start {DIVIDER} {datetime.now()}")
-            print_sucess(f"timetracking started at: {str(datetime.now())}")
+            print_success(f"timetracking started at: {str(datetime.now())}")
         except Exception as e:
             print_error(f"An error occurred while writing to the file: {e}")
 
