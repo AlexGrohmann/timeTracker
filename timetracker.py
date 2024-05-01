@@ -31,6 +31,10 @@ def print_status(status):
     print(f"{Colors.YELLOW}{status}{Colors.RESET}")
 
 
+def print_message(status):
+    print(f"{Colors.MAGENTA}{status}{Colors.RESET}")
+
+
 def time_difference(start_time, end_time):
     start = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S.%f")
     end = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S.%f")
@@ -154,16 +158,19 @@ def start_tracking():
 
 
 def delete_last_line():
-    if os.path.exists(PATH) and os.path.getsize(PATH) > 0:
-        with open(PATH, "r+") as file:
-            lines = file.readlines()
-            if len(lines) > 0:
-                file.seek(0)
-                file.truncate()
-                file.writelines(lines[:-1])
-        print("Last entry deleted.")
-    else:
-        print("File is empty or does not exist.")
+    try:
+        if os.path.exists(PATH) and os.path.getsize(PATH) > 0:
+            with open(PATH, "r+") as file:
+                lines = file.readlines()
+                if len(lines) > 0:
+                    file.seek(0)
+                    file.truncate()
+                    file.writelines(lines[:-1])
+            print_message("Last entry deleted.")
+        else:
+            print("File is empty or does not exist.")
+    except Exception as e:
+        print_error(f"An unexpected error occurred: {e}")
 
 
 def main():
@@ -188,7 +195,6 @@ def main():
             output()
         elif user_input == "X":
             delete_last_line()
-            print("Last entry deleted.")
 
 
 if __name__ == "__main__":
