@@ -94,6 +94,29 @@ class TimeTracker:
         except Exception as e:
             self.print_error(f"An error occurred while processing meeting: {e}")
 
+    def process_other(self, last_timestamp, prefix):
+        try:
+            other_task = self.print_user_input_message("Task: \n")
+            time_spend_input = self.print_user_input_message(
+                "How much time to log? Press Enter for: "
+                + self.time_difference(str(last_timestamp), str(datetime.now()))
+            )
+
+            if time_spend_input.strip():
+                time_spend_minutes = int(time_spend_input)
+                time_difference_past = timedelta(minutes=time_spend_minutes)
+                new_timestamp = last_timestamp + time_difference_past
+            else:
+                new_timestamp = datetime.now()
+
+            with open(self.path, "a") as f:
+                f.write(
+                    f"{prefix} other task {other_task} {self.divider} {new_timestamp}\n"
+                )
+            self.print_success(f"Added: other task {other_task} {new_timestamp}")
+        except Exception as e:
+            self.print_error(f"An error occurred while processing other task: {e}")
+
     def track(self, type, last_timestamp_str):
         last_timestamp = self.parse_timestamp(last_timestamp_str)
         if last_timestamp is None:
@@ -106,6 +129,8 @@ class TimeTracker:
             self.process_ticket(last_timestamp, prefix)
         elif type == "meeting":
             self.process_meeting(last_timestamp, prefix)
+        elif type == "other task":
+            self.process_other(last_timestamp, prefix)
         else:
             self.print_error("Invalid type provided.")
 
@@ -170,11 +195,12 @@ class TimeTracker:
         else:
             self.print_message("What do you want to track? \n")
             user_input = self.print_user_input_message(
-                "\t[T]: Ticket\n\t[M]: Meeting\n\t[?]: Get tracked times\n\t[X]: Delete last entry\n"
+                "\t[T]: Ticket\n\t[M]: Meeting\n\t[O]: Other task\n\t[?]: Get tracked times\n\t[X]: Delete last entry\n"
             ).upper()
             action_mapping = {
                 "T": lambda: self.track("ticket", self.get_last_timestamp()),
                 "M": lambda: self.track("meeting", self.get_last_timestamp()),
+                "O": lambda: self.track("other task", self.get_last_timestamp()),
                 "?": self.output,
                 "X": self.delete_last_line,
             }
