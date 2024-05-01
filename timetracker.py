@@ -39,10 +39,22 @@ def time_difference(start_time, end_time):
     return f"{hours}h {minutes}min"
 
 
+from datetime import datetime, timedelta
+
+
 def track(type, last_timestamp_str):
-    last_timestamp = datetime.strptime(last_timestamp_str, "%Y-%m-%d %H:%M:%S.%f")
-    with open(PATH, "r") as f:
-        file_content = f.read()
+    try:
+        last_timestamp = datetime.strptime(last_timestamp_str, "%Y-%m-%d %H:%M:%S.%f")
+    except ValueError as e:
+        print_error(f"Error parsing last_timestamp: {e}")
+        return
+
+    try:
+        with open(PATH, "r") as f:
+            file_content = f.read()
+    except IOError as e:
+        print_error(f"Error reading file: {e}")
+        return
 
     if file_content and file_content[-1] == "\n":
         prefix = ""
@@ -50,48 +62,62 @@ def track(type, last_timestamp_str):
         prefix = "\n"
 
     if type == "ticket":
-        ticket_number = input("Ticket: \n")
-        time_spend_input = input(
-            "How much time to log? Press Enter for: "
-            + time_difference(str(last_timestamp), str(datetime.now()))
-        )
+        try:
+            ticket_number = input("Ticket: \n")
+            time_spend_input = input(
+                "How much time to log? Press Enter for: "
+                + time_difference(str(last_timestamp), str(datetime.now()))
+            )
 
-        if time_spend_input.strip():  # Check if time_spend_input is not empty
-            time_spend_minutes = int(time_spend_input)
-            time_difference_past = timedelta(minutes=time_spend_minutes)
-            new_timestamp = last_timestamp + time_difference_past
+            if time_spend_input.strip():  # Check if time_spend_input is not empty
+                time_spend_minutes = int(time_spend_input)
+                time_difference_past = timedelta(minutes=time_spend_minutes)
+                new_timestamp = last_timestamp + time_difference_past
 
-            with open(PATH, "a") as f:
-                f.write(f"{prefix} {type} {ticket_number} {DIVIDER} {new_timestamp}\n")
-            print(f"added: {type} {ticket_number} {new_timestamp}")
-        else:
-            current_time = datetime.now()
+                with open(PATH, "a") as f:
+                    f.write(
+                        f"{prefix} {type} {ticket_number} {DIVIDER} {new_timestamp}\n"
+                    )
+                print_sucess(f"added: {type} {ticket_number} {new_timestamp}")
+            else:
+                current_time = datetime.now()
 
-            with open(PATH, "a") as f:
-                f.write(f"{prefix} {type} {ticket_number} {DIVIDER} {current_time}\n")
-            print(f"added: {type} {ticket_number} {current_time}")
+                with open(PATH, "a") as f:
+                    f.write(
+                        f"{prefix} {type} {ticket_number} {DIVIDER} {current_time}\n"
+                    )
+                print_sucess(f"added: {type} {ticket_number} {current_time}")
+        except Exception as e:
+            print_error(f"An error occurred while processing ticket: {e}")
 
     elif type == "meeting":
-        meeting_topic = input("Topic: \n")
-        time_spend_input = input(
-            "How much time to log? Press Enter for: "
-            + time_difference(str(last_timestamp), str(datetime.now()))
-        )
+        try:
+            meeting_topic = input("Topic: \n")
+            time_spend_input = input(
+                "How much time to log? Press Enter for: "
+                + time_difference(str(last_timestamp), str(datetime.now()))
+            )
 
-        if time_spend_input.strip():  # Check if time_spend_input is not empty
-            time_spend_minutes = int(time_spend_input)
-            time_difference_past = timedelta(minutes=time_spend_minutes)
-            new_timestamp = last_timestamp + time_difference_past
+            if time_spend_input.strip():  # Check if time_spend_input is not empty
+                time_spend_minutes = int(time_spend_input)
+                time_difference_past = timedelta(minutes=time_spend_minutes)
+                new_timestamp = last_timestamp + time_difference_past
 
-            with open(PATH, "a") as f:
-                f.write(f"{prefix}{type} {meeting_topic} {DIVIDER} {new_timestamp}\n")
-            print(f"added: {type} {meeting_topic} {new_timestamp}")
-        else:
-            current_time = datetime.now()
+                with open(PATH, "a") as f:
+                    f.write(
+                        f"{prefix}{type} {meeting_topic} {DIVIDER} {new_timestamp}\n"
+                    )
+                print_sucess(f"added: {type} {meeting_topic} {new_timestamp}")
+            else:
+                current_time = datetime.now()
 
-            with open(PATH, "a") as f:
-                f.write(f"{prefix}{type} {meeting_topic} {DIVIDER} {current_time}\n")
-            print(f"added: {type} {meeting_topic} {current_time}")
+                with open(PATH, "a") as f:
+                    f.write(
+                        f"{prefix}{type} {meeting_topic} {DIVIDER} {current_time}\n"
+                    )
+                print_sucess(f"added: {type} {meeting_topic} {current_time}")
+        except Exception as e:
+            print_error(f"An error occurred while processing meeting: {e}")
 
 
 def output():
