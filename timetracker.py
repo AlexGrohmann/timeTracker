@@ -6,6 +6,31 @@ PATH = f"./timetrackerdata/{TODAY}.txt"
 DIVIDER = "--> "
 
 
+class Colors:
+    BLACK = "\033[30m"
+    RED = "\033[31m"
+    GREEN = "\033[32m"
+    YELLOW = "\033[33m"
+    BLUE = "\033[34m"
+    MAGENTA = "\033[35m"
+    CYAN = "\033[36m"
+    WHITE = "\033[37m"
+    UNDERLINE = "\033[4m"
+    RESET = "\033[0m"
+
+
+def print_error(error):
+    print(f"{Colors.RED}{error}{Colors.RESET}")
+
+
+def print_sucess(status):
+    print(f"{Colors.GREEN}{status}{Colors.RESET}")
+
+
+def print_question(status):
+    print(f"{Colors.YELLOW}{status}{Colors.RESET}")
+
+
 def time_difference(start_time, end_time):
     start = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S.%f")
     end = datetime.strptime(end_time, "%Y-%m-%d %H:%M:%S.%f")
@@ -83,8 +108,12 @@ def output():
 def start_tracking():
     user_input = input("start tracking now? " + str(datetime.now()) + "\n")
     if user_input == "":
-        with open(PATH, "a") as f:
-            f.write(f"start {DIVIDER} {datetime.now()}")
+        try:
+            with open(PATH, "a") as f:
+                f.write(f"start {DIVIDER} {datetime.now()}")
+            print_sucess("timetracking started")
+        except Exception as e:
+            print_error(f"An error occurred while writing to the file: {e}")
 
 
 def delete_last_line():
