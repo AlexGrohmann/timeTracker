@@ -27,7 +27,7 @@ def print_success(status):
     print(f"{Colors.GREEN}{status}{Colors.RESET}")
 
 
-def print_question(status):
+def print_status(status):
     print(f"{Colors.YELLOW}{status}{Colors.RESET}")
 
 
@@ -121,14 +121,25 @@ def track(type, last_timestamp_str):
 
 
 def output():
-    with open(PATH, "r") as file:
-        lines = file.readlines()
+    try:
+        with open(PATH, "r") as file:
+            lines = file.readlines()
+    except IOError as e:
+        print_error(f"Error reading file: {e}")
+        return
 
     for i in range(1, len(lines)):
-        start_time = lines[i - 1].split(DIVIDER)[1].strip()
-        end_time = lines[i].split(DIVIDER)[1].strip()
-        time_diff = time_difference(start_time, end_time)
-        print(f"{i}. {lines[i].split(DIVIDER)[0]} {time_diff}\n")
+        try:
+            start_time = lines[i - 1].split(DIVIDER)[1].strip()
+            end_time = lines[i].split(DIVIDER)[1].strip()
+            time_diff = time_difference(start_time, end_time)
+            print_status(f"{i}. {lines[i].split(DIVIDER)[0]} {time_diff}\n")
+        except IndexError as e:
+            print_error(f"Error parsing line {i}: {e}")
+        except ValueError as e:
+            print_error(f"Error converting time: {e}")
+        except Exception as e:
+            print_error(f"An unexpected error occurred: {e}")
 
 
 def start_tracking():
