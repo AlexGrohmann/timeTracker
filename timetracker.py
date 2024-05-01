@@ -190,6 +190,15 @@ class TimeTracker:
             self.print_error(f"An unexpected error occurred: {e}")
 
     def main(self):
+        ascii_art = """
+            ____  _      _    _      _    _      _    _      _    _      _  
+           / \  | |    | |  | |    / \  | |    / \  | |    / \  | |    / \ 
+          / _ \ | |    | |  | |   / _ \ | |   / _ \ | |   / _ \ | |   / _ \\
+         / ___ \| |___ | |__| |  / ___ \| |  / ___ \| |  / ___ \| |  / ___ \\
+        /_/   \_\____/ \______/ /_/   \_\_| /_/   \_\_| /_/   \_\_| /_/   \_\\
+        """
+
+        print(ascii_art)
         if not os.path.exists(self.path):
             self.start_tracking()
         else:
