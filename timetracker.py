@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import os
+import time
 
 
 class TimeTracker:
@@ -216,6 +217,8 @@ class TimeTracker:
             action = action_mapping.get(user_input)
             if action:
                 action()
+                time.sleep(3)
+                self.main()
 
     def get_last_timestamp(self):
         try:
