@@ -202,6 +202,7 @@ class TimeTracker:
         print(ascii_art)
         if not os.path.exists(self.path):
             self.start_tracking()
+            self.main()
         else:
             self.print_message("What do you want to track? \n")
             user_input = self.print_user_input_message(
