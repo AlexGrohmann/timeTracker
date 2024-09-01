@@ -206,7 +206,7 @@ class TimeTracker:
         else:
             self.print_message("What do you want to track? \n")
             user_input = self.print_user_input_message(
-                "\t[T]: Ticket\n\t[M]: Meeting\n\t[O]: Other task\n\t[?]: Get tracked times\n\t[X]: Delete last entry\n"
+                "\t[T]: Ticket\n\t[M]: Meeting\n\t[O]: Other task\n\t[?]: Get tracked times\n\t[!]: Time since start tracking\n\t[X]: Delete last entry\n"
             ).upper()
             action_mapping = {
                 "T": lambda: self.track("ticket", self.get_last_timestamp()),
@@ -214,6 +214,7 @@ class TimeTracker:
                 "O": lambda: self.track("other task", self.get_last_timestamp()),
                 "?": self.output,
                 "X": self.delete_last_line,
+                "!": self.get_first_timestamp,
             }
             action = action_mapping.get(user_input)
             if action:
@@ -226,6 +227,40 @@ class TimeTracker:
             with open(self.path, "r") as f:
                 last_line = f.readlines()[-1]
                 return last_line.split(self.divider)[1].strip()
+        except Exception as e:
+            self.print_error(f"An error occurred while getting last timestamp: {e}")
+            return datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
+
+    def get_first_timestamp(self):
+        print("first timestop")
+        try:
+            with open(self.path, "r") as f:
+                # Read the first line from the file
+                first_line = f.readline()
+
+                # Extract the timestamp using the divider
+                first_timestamp_str = first_line.split(self.divider)[1].strip()
+
+                # Parse the timestamp string into a datetime object
+                # Adjust format to match 'YYYY-MM-DD HH:MM:SS.microseconds'
+                first_timestamp = datetime.strptime(
+                    first_timestamp_str, "%Y-%m-%d %H:%M:%S.%f"
+                )
+
+                # Get the current datetime
+                current_time = datetime.now()
+
+                # Calculate the time difference
+                time_difference = current_time - first_timestamp
+
+                # Extract hours and minutes from the time difference
+                hours, remainder = divmod(time_difference.total_seconds(), 3600)
+                minutes = remainder // 60
+
+                # Format the time difference as hh:mm
+                formatted_time_difference = f"{int(hours):02}:{int(minutes):02}"
+                print(f"Time difference: {formatted_time_difference}")
+
         except Exception as e:
             self.print_error(f"An error occurred while getting last timestamp: {e}")
             return datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")
